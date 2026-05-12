@@ -1,4 +1,4 @@
-module github.com/percipia/eslgo
+module github.com/cc-integration-team/eslgo
 
 go 1.21
 

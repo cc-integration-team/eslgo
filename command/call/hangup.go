@@ -11,8 +11,9 @@
 package call
 
 import (
-	"github.com/percipia/eslgo/command"
 	"net/textproto"
+
+	"github.com/cc-integration-team/eslgo/command"
 )
 
 type Hangup struct {

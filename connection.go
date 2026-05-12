@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percipia/eslgo/command"
+	"github.com/cc-integration-team/eslgo/command"
 )
 
 type Conn struct {
@@ -289,12 +289,11 @@ func (c *Conn) receiveLoop() {
 	for c.runningContext.Err() == nil {
 		err := c.doMessage()
 		if err != nil {
-			c.logger.Warn("Error receiving message: %s\n", err.Error())
 			// when err.Error() is EOF we should trigger event to responseChannel and exit the loop
 			// because the connection is closed
 			if err.Error() == "EOF" {
 				// send signal to c.responseChannels[TypeDisconnect]
-				c.logger.Warn("Connection closed, stopping receive loop\n")
+				c.logger.Warn("Connection closed remoteAddr=[%s], stopping receive loop\n", c.conn.RemoteAddr().String())
 				select {
 				case c.responseChannels[TypeDisconnect] <- &RawResponse{
 					Headers: textproto.MIMEHeader{
@@ -306,6 +305,9 @@ func (c *Conn) receiveLoop() {
 				default:
 				}
 				return
+			} else {
+				c.logger.Warn("Error receiving message: %s\n", err.Error())
+				c.stopFunc()
 			}
 			break
 		}

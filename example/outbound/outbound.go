@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/cc-integration-team/eslgo"
+	eslgo "github.com/cc-integration-team/eslgo"
 )
 
 func main() {

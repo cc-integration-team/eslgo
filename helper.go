@@ -99,10 +99,7 @@ func (c *Conn) WaitForDTMF(ctx context.Context, uuid string) (byte, error) {
 			time.Sleep(10 * time.Millisecond)
 		}
 	})
-	defer func() {
-		c.RemoveEventListener(uuid, listenerID)
-		close(done)
-	}()
+	defer c.RemoveEventListener(uuid, listenerID)
 
 	select {
 	case digit := <-done:

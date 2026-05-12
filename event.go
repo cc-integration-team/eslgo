@@ -49,6 +49,9 @@ func readPlainEvent(body []byte) (*Event, error) {
 		if err != nil {
 			return event, err
 		}
+		if length < 0 {
+			return event, fmt.Errorf("invalid Content-Length: %d", length)
+		}
 		event.Body = make([]byte, length)
 		_, err = io.ReadFull(reader, event.Body)
 		if err != nil {

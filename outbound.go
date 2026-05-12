@@ -55,6 +55,16 @@ func (opts OutboundOptions) ListenAndServe(address string, handler OutboundHandl
 	if opts.Logger != nil {
 		opts.Logger.Info("Listening for new ESL connections on %s\n", listener.Addr().String())
 	}
+
+	// Close the listener when the context is cancelled so Accept unblocks and the loop exits.
+	// defer stop() cancels the AfterFunc if the loop exits before the context is done (no goroutine leak).
+	if opts.Context != nil {
+		stop := context.AfterFunc(opts.Context, func() {
+			listener.Close()
+		})
+		defer stop()
+	}
+
 	for {
 		c, err := listener.Accept()
 		if err != nil {
@@ -97,8 +107,11 @@ func (c *Conn) dummyLoop() {
 	select {
 	case <-c.responseChannels[TypeDisconnect]:
 		c.logger.Info("Disconnect outbound connection", c.conn.RemoteAddr())
-		if c.closeDelay >= 0 {
-			time.AfterFunc(c.closeDelay*time.Second, func() {
+		c.writeLock.Lock()
+		delay := c.closeDelay
+		c.writeLock.Unlock()
+		if delay >= 0 {
+			time.AfterFunc(delay*time.Second, func() {
 				c.Close()
 			})
 		}

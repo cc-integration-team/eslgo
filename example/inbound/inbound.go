@@ -15,7 +15,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/cc-integration-team/eslgo"
+	eslgo "github.com/cc-integration-team/eslgo"
 )
 
 func main() {

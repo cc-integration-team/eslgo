@@ -49,6 +49,9 @@ func (c *Conn) readResponse() (*RawResponse, error) {
 		if err != nil {
 			return response, err
 		}
+		if length < 0 {
+			return response, fmt.Errorf("invalid Content-Length: %d", length)
+		}
 		response.Body = make([]byte, length)
 		_, err = io.ReadFull(c.reader, response.Body)
 		if err != nil {

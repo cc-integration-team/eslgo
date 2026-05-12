@@ -95,6 +95,8 @@ func newConnection(c net.Conn, outbound bool, opts Options) *Conn {
 }
 
 // RegisterEventListener - Registers a new event listener for the specified channel UUID(or EventListenAll). Returns the registered listener ID used to remove it.
+// Callers MUST call RemoveEventListener with the returned ID when done to avoid unbounded memory growth —
+// there is no automatic cleanup when a call ends.
 func (c *Conn) RegisterEventListener(channelUUID string, listener EventListener) string {
 	c.eventListenerLock.Lock()
 	defer c.eventListenerLock.Unlock()
@@ -166,6 +168,8 @@ func (c *Conn) SendCommand(ctx context.Context, cmd command.Command) (*RawRespon
 			return nil, errors.New("connection closed")
 		}
 		return response, nil
+	case <-c.runningContext.Done():
+		return nil, c.runningContext.Err()
 	case <-ctx.Done():
 		return nil, ctx.Err()
 	}

@@ -46,8 +46,11 @@ func FormatHeaderString(headers textproto.MIMEHeader) string {
 			ws.WriteString("\r\n")
 		}
 	}
-	// Remove the extra \r\n
+	// Remove the extra \r\n appended by the last header write
 	str := ws.String()
+	if len(str) < 2 {
+		return ""
+	}
 	return str[:len(str)-2]
 }
 
